@@ -1,7 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Clock, MapPin, Users, Mail, ChevronRight, X, Menu, ChevronDown, Megaphone } from "lucide-react";
+
+type CSSVars = React.CSSProperties & Record<string, string>;
 
 /** =====================
  *  BRAND TOKENS
@@ -25,8 +28,8 @@ const ORG = {
   email: "munihsahne@gmail.com",
   city: "Münih",
   instagram: "https://instagram.com/munihsahne",
-  googleForm: "", // (opsiyonel)
-  logoSrc: "/logo.png", // /public/logo.png
+  googleForm: "",
+  logoSrc: "/logo.png",
 };
 
 const MEETUP = {
@@ -112,22 +115,19 @@ function formatDateTR(dateStr: string) {
     weekday: "long",
   });
 }
-// YYYY-MM-DD'yi *lokal* saatle üret
 function pad2(n: number) { return n.toString().padStart(2, "0"); }
 function yyyymmddLocal(d: Date) {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
-
 function datesOfWeekdayInMonth(year: number, monthIndex0: number, weekday: number) {
   const first = new Date(year, monthIndex0, 1);
   const last = new Date(year, monthIndex0 + 1, 0);
   const out: string[] = [];
   for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
-    if (d.getDay() === weekday) out.push(yyyymmddLocal(d)); // <-- artık local
+    if (d.getDay() === weekday) out.push(yyyymmddLocal(d)); // local-safe
   }
   return out;
 }
-
 function classNames(...cn: (string | false | undefined)[]) {
   return cn.filter(Boolean).join(" ");
 }
@@ -153,15 +153,15 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  useTheme(); // sadece sistem temasını uygular
+  useTheme();
 
   const meetupDateLabel = useMemo(() => formatDateTR(MEETUP.date), []);
   const gcal = useMemo(() => googleCalendarLink(MEETUP), []);
 
   // Eğitim takvimi (Kasım–Aralık Pazartesileri, 19:30–22:00)
   const year = useMemo(() => Number(MEETUP.date.slice(0, 4)), []);
-  const kasimDates = useMemo(() => datesOfWeekdayInMonth(year, 10, 1), [year]); // Kasım Pazartesileri
-  const aralikDates = useMemo(() => datesOfWeekdayInMonth(year, 11, 1), [year]); // Aralık Pazartesileri
+  const kasimDates = useMemo(() => datesOfWeekdayInMonth(year, 10, 1), [year]); // Mon
+  const aralikDates = useMemo(() => datesOfWeekdayInMonth(year, 11, 1), [year]); // Mon
   const egitimSaat = "19:30–22:00";
 
   // 29 Aralık eğitim yok
@@ -211,22 +211,19 @@ export default function Home() {
     </div>
   );
 
+  // ✅ Type the CSS variables instead of suppressing TS
+  const mainStyle: CSSVars = {
+    background: "var(--page-bg)",
+    "--page-bg": PALETTE.white,
+    "--card-bg": "#FFFFFF",
+    "--subtle": PALETTE.warmWhite,
+    "--border": PALETTE.border,
+    "--accent": PALETTE.bavaria,
+    "--heading": PALETTE.oxford,
+  };
+
   return (
-    <main
-      className="min-h-screen text-neutral-900 dark:text-neutral-100"
-      style={
-        {
-          background: "var(--page-bg)",
-          // @ts-expect-error custom props
-          "--page-bg": PALETTE.white,
-          "--card-bg": "#FFFFFF",
-          "--subtle": PALETTE.warmWhite,
-          "--border": PALETTE.border,
-          "--accent": PALETTE.bavaria,
-          "--heading": PALETTE.oxford,
-        } as React.CSSProperties
-      }
-    >
+    <main className="min-h-screen text-neutral-900 dark:text-neutral-100" style={mainStyle}>
       <style>{`
         :root[data-theme="dark"] {
           --page-bg: #0A0A0A;
@@ -245,7 +242,7 @@ export default function Home() {
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             {[
-              { href: "#top", label: "Biz Kimiz" },
+              { href: "#top", label: "Biz Kimiz" },               // <- fixed anchor
               { href: "#events", label: "Yaklaşan Etkinlikler" },
               { href: "#education", label: "Eğitim Takvimi" },
               { href: "#faq", label: "SSS" },
@@ -269,7 +266,7 @@ export default function Home() {
           <div className="md:hidden border-t border-[color:var(--border)] bg-[color:var(--card-bg)]">
             <div className="mx-auto max-w-6xl px-5 py-3 grid gap-2 text-sm">
               {["Biz Kimiz", "Yaklaşan Etkinlikler", "Eğitim Takvimi", "SSS", "İletişim"].map((label, i) => (
-                <a key={i} href={`#${["join", "events", "education", "faq", "contact"][i]}`} className="flex items-center justify-between py-2">
+                <a key={i} href={`#${["top", "events", "education", "faq", "contact"][i]}`} className="flex items-center justify-between py-2">
                   {label}
                   <ChevronRight className="h-4 w-4" />
                 </a>
@@ -293,11 +290,9 @@ export default function Home() {
             <h1 className="text-4xl md:text-5xl font-semibold mt-4 text-[color:var(--heading)]">Münih Sahne</h1>
             <p className="mt-4 text-lg text-neutral-700 dark:text-neutral-200/90">
               Biz; amatör ruhla profesyonel özeni buluşturan kolektif bir tiyatro topluluğuyuz.
-              <br />
-              <br />
+              <br /><br />
               Kimimiz yeni, kimimiz yıllardır bu işin içinde. Ama hepimiz aynı heyecanla öğreniyor, eğleniyor, ve sahne alıyoruz.
-              <br />
-              <br />
+              <br /><br />
               Münih Sahne; herkesin kendine yer bulduğu, birlikte ürettiği bir topluluk. Sen de aramıza katılmak ister misin?
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -318,31 +313,18 @@ export default function Home() {
               </div>
               <div className="mt-2 text-xl font-semibold text-[color:var(--heading)]">{MEETUP.title}</div>
               <div className="mt-1 text-sm text-neutral-700 dark:text-neutral-300 flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {meetupDateLabel} • {MEETUP.startTime}–{MEETUP.endTime}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  {MEETUP.location}
-                </span>
+                <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" />{meetupDateLabel} • {MEETUP.startTime}–{MEETUP.endTime}</span>
+                <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" />{MEETUP.location}</span>
               </div>
               <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">{MEETUP.details}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => setOpen(true)} className="px-4 py-2 rounded text-sm text-white" style={{ background: PALETTE.bavaria }}>
                   Kayıt Ol
                 </button>
-                <button
-                  onClick={() => downloadICS("tanisma-toplantisi.ics", buildICS(MEETUP))}
-                  className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700"
-                >
+                <button onClick={() => downloadICS("tanisma-toplantisi.ics", buildICS(MEETUP))} className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700">
                   Takvime ekle (.ics)
                 </button>
-                <a
-                  href={gcal}
-                  target="_blank"
-                  className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700"
-                >
+                <a href={gcal} target="_blank" className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700">
                   Google Calendar
                 </a>
               </div>
@@ -361,13 +343,13 @@ export default function Home() {
           ].map((k, i) => (
             <div key={i} className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
               <div className="text-sm font-medium text-[color:var(--heading)]">{k.t}</div>
-              <div className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{/* açıklama boş bırakılmıştı */}</div>
+              <div className="mt-1 text-sm text-neutral-700 dark:text-neutral-300" />
             </div>
           ))}
         </div>
       </section>
 
-      {/* EVENTS (boş mesaj) */}
+      {/* EVENTS (empty) */}
       <section id="events" className="mx-auto max-w-6xl px-5 py-12">
         <h2 className="text-2xl font-semibold text-[color:var(--heading)]">Yaklaşan Etkinlikler</h2>
         <div className="mt-4 rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
@@ -389,13 +371,13 @@ export default function Home() {
       <section id="education" className="mx-auto max-w-6xl px-5 py-12">
         <h3 className="text-xl font-semibold text-[color:var(--heading)]">Eğitim Takvimi (Kasım–Aralık {year})</h3>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          Tüm oturumlar Pazartesi günleri {egitimSaat} arasında yapılır.
+          Tüm oturumlar Pazartesi günleri 19:30–22:00 arasında yapılır.
         </p>
 
         <div className="mt-4 grid md:grid-cols-2 gap-6">
-          {/* Kasım kartı */}
+          {/* Kasım */}
           <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
-            <div className="font-medium text-[color:var(--heading)]">Kasım {year} • Pazartesi {egitimSaat}</div>
+            <div className="font-medium text-[color:var(--heading)]">Kasım {year} • Pazartesi 19:30–22:00</div>
             <ul className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 grid gap-1">
               {kasimDates.length === 0 && <li>Bu ay için tarih bulunamadı</li>}
               {kasimDates.map((d) => (
@@ -407,9 +389,9 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Aralık kartı */}
+          {/* Aralık */}
           <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
-            <div className="font-medium text-[color:var(--heading)]">Aralık {year} • Pazartesi {egitimSaat}</div>
+            <div className="font-medium text-[color:var(--heading)]">Aralık {year} • Pazartesi 19:30–22:00</div>
             <ul className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 grid gap-1">
               {aralikDatesShown.length === 0 && <li>Bu ay için tarih bulunamadı</li>}
               {aralikDatesShown.map((d) => (
@@ -418,8 +400,6 @@ export default function Home() {
                   {formatDateTR(d)}
                 </li>
               ))}
-
-              {/* 29 Aralık — eğitim yok */}
               {noClassDates.map((d) => (
                 <li key={d} className="flex items-center gap-2 opacity-80">
                   <CalendarDays className="h-4 w-4" />
@@ -431,7 +411,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ (sola hizalı) */}
+      {/* FAQ (left aligned) */}
       <section id="faq" className="mx-auto max-w-6xl px-5 py-12">
         <h2 className="text-2xl font-semibold text-[color:var(--heading)]">Sıkça Sorulanlar</h2>
         <div className="mt-4 max-w-3xl pl-2 rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] divide-y">
@@ -468,13 +448,8 @@ export default function Home() {
           </li>
         </ul>
         <div className="mt-8 text-sm text-neutral-600 dark:text-neutral-400">
-          <a className="hover:underline" href="/impressum">
-            Impressum
-          </a>{" "}
-          ·{" "}
-          <a className="hover:underline" href="/datenschutz">
-            Datenschutz
-          </a>
+          <a className="hover:underline" href="/impressum">Impressum</a>{" "}
+          · <a className="hover:underline" href="/datenschutz">Datenschutz</a>
         </div>
       </section>
 
@@ -484,7 +459,6 @@ export default function Home() {
 
       {nextEventCta}
 
-      {/* Join Modal & Toast */}
       {open && <JoinModal onClose={() => setOpen(false)} org={ORG} onSubmitted={() => setToast("Başvurun oluşturuldu.")} />}
 
       {toast && (
@@ -502,7 +476,7 @@ export default function Home() {
 function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: typeof ORG; onSubmitted: () => void }) {
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
-  const [phone, setPhone] = useState(""); // opsiyonel telefon
+  const [phone, setPhone] = useState("");
   const [interest, setInterest] = useState("Oyunculuk");
   const [note, setNote] = useState("");
   const [agree, setAgree] = useState(false);
@@ -530,8 +504,7 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
       onSubmitted();
       onClose();
     } catch {
-      // fallback: mailto
-      window.location.href = mailto;
+      window.location.href = mailto; // fallback
       onSubmitted();
       onClose();
     } finally {
@@ -552,38 +525,17 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
         <form className="mt-4 grid gap-4" onSubmit={handleSubmit}>
           <label className="grid gap-1 text-sm">
             <span>Ad Soyad</span>
-            <input
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900"
-              placeholder="Ad Soyad"
-            />
+            <input required value={name} onChange={(e) => setName(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="Ad Soyad" />
           </label>
 
           <label className="grid gap-1 text-sm">
             <span>E-posta</span>
-            <input
-              required
-              type="email"
-              value={mail}
-              onChange={(e) => setMail(e.target.value)}
-              className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900"
-              placeholder="ornek@mail.com"
-            />
+            <input required type="email" value={mail} onChange={(e) => setMail(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="ornek@mail.com" />
           </label>
 
           <label className="grid gap-1 text-sm">
-            <span>
-              Telefon <span className="opacity-60">(opsiyonel — WhatsApp grubumuza eklenmek için)</span>
-            </span>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900"
-              placeholder="+49 ..."
-            />
+            <span>Telefon <span className="opacity-60">(opsiyonel — WhatsApp grubumuza eklenmek için)</span></span>
+            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="+49 ..." />
           </label>
 
           <label className="grid gap-1 text-sm">
@@ -598,19 +550,12 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
 
           <label className="grid gap-1 text-sm">
             <span>Not (opsiyonel)</span>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="min-h-24 rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900"
-              placeholder="Kısaca kendinden bahsedebilir veya sorularını yazabilirsin."
-            />
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} className="min-h-24 rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="Kısaca kendinden bahsedebilir veya sorularını yazabilirsin." />
           </label>
 
           <label className="mt-1 flex items-start gap-2 text-xs text-neutral-700 dark:text-neutral-300">
             <input type="checkbox" className="mt-0.5" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-            <span>
-              Kişisel verilerimin ön kayıt iletişimi amacıyla işlenmesini kabul ediyorum (<a href="/datenschutz" className="underline">Aydınlatma Metni</a>).
-            </span>
+            <span>Kişisel verilerimin ön kayıt iletişimi amacıyla işlenmesini kabul ediyorum (<a href="/datenschutz" className="underline">Aydınlatma Metni</a>).</span>
           </label>
 
           <div className="mt-2 flex flex-wrap gap-2">
@@ -628,7 +573,6 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
               </a>
             )}
           </div>
-
         </form>
       </div>
     </div>
