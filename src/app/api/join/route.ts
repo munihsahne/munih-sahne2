@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const resendFrom = process.env.RESEND_FROM || "onboarding@resend.dev";
-const orgEmail = process.env.ORG_EMAIL || "munihsahne@gmail.com";
+const orgEmail = process.env.ORG_EMAIL || "no-reply@munihsahne.de";
 
 // Basit e-posta regex'i
 const MAIL_RE = /.+@.+\..+/;
