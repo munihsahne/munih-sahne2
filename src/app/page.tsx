@@ -442,7 +442,7 @@ export default function Home() {
         <h2 className="text-2xl font-semibold text-[color:var(--heading)]">Sıkça Sorulanlar</h2>
         <div className="mt-4 max-w-3xl pl-2 rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] divide-y">
           {[
-            { q: "XXXDeneyim gerekiyor mu?", a: "Hayır. İlk kez geliyorsan kısa bir tanışma ve ısınma yapıyoruz; sonra akışa dahil oluyorsun." },
+            { q: "Deneyim gerekiyor mu?", a: "Hayır. İlk kez geliyorsan kısa bir tanışma ve ısınma yapıyoruz; sonra akışa dahil oluyorsun." },
             { q: "Devamlılık kuralı var mı?", a: "Eğitim ve provalara düzenli katılım beklenir. Arada kaçıracaksan önceden haber vermen yeterli." },
             { q: "Herhangi bir ücret var mı?", a: "Salon ve teknik giderleri dönem başında birlikte netleştirip şeffafça paylaşıyoruz." },
             { q: "Dil?", a: "Eğitim ve oyun dilimiz Türkçe; gerektiğinde Almanca/İngilizce destekliyoruz." },
@@ -530,7 +530,7 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
       onSubmitted();
       onClose();
     } catch {
-      window.location.href = mailto; // fallback
+      // İSTEK ÜZERİNE: mailto fallback YOK.
       onSubmitted();
       onClose();
     } finally {
@@ -585,6 +585,7 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
           </label>
 
           <div className="mt-2 flex flex-wrap gap-2">
+            {/* RESEND ile gönderir */}
             <button
               type="submit"
               disabled={!canSubmit || submitting}
@@ -593,6 +594,8 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
             >
               {submitting ? "Gönderiliyor..." : "Başvuruyu Gönder"}
             </button>
+
+            {/* mailto butonu AYNI KALSIN */}
             {!ORG.googleForm && (
               <a href={mailto} className="px-4 py-2 rounded border border-[color:var(--border)]">
                 E-posta Uygulamasıyla Aç
