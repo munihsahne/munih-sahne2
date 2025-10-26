@@ -124,7 +124,7 @@ function datesOfWeekdayInMonth(year: number, monthIndex0: number, weekday: numbe
   const last = new Date(year, monthIndex0 + 1, 0);
   const out: string[] = [];
   for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
-    if (d.getDay() === weekday) out.push(yyyymmddLocal(d)); // local-safe
+    if (d.getDay() === weekday) out.push(yyyymmddLocal(d));
   }
   return out;
 }
@@ -175,9 +175,9 @@ export default function Home() {
   }, [toast]);
 
   const nextEventCta = !ctaClosed && (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-neutral-900/70 dark:border-neutral-800">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto max-w-6xl px-5 py-3 flex items-center gap-3 justify-between">
-        <div className="flex items-center gap-3 text-sm text-neutral-700 dark:text-neutral-200">
+        <div className="flex items-center gap-3 text-sm text-neutral-700">
           <Megaphone className="h-5 w-5 text-[color:var(--accent)]" />
           <div>
             <div className="font-medium">{MEETUP.title}</div>
@@ -192,21 +192,21 @@ export default function Home() {
           </button>
           <button
             onClick={() => downloadICS("tanisma-toplantisi.ics", buildICS(MEETUP))}
-            className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700"
+            className="px-3 py-2 rounded border text-sm hover:bg-neutral-50"
           >
             Takvime Ekle
           </button>
           <a
             href={gcal}
             target="_blank"
-            className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700"
+            className="px-3 py-2 rounded border text-sm hover:bg-neutral-50"
           >
             Google Calendar
           </a>
           <button
             onClick={closeCta}
             aria-label="Kapat"
-            className="ml-1 p-1 rounded border border-[color:var(--border)] hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            className="ml-1 p-1 rounded border border-[color:var(--border)] hover:bg-neutral-100"
           >
             <X className="h-4 w-4" />
           </button>
@@ -215,7 +215,7 @@ export default function Home() {
     </div>
   );
 
-  // CSS variables (light defaults). Dark is applied via media query below.
+  // CSS variables (force LIGHT only)
   const mainStyle: CSSVars = {
     background: "var(--page-bg)",
     "--page-bg": PALETTE.white,
@@ -224,12 +224,15 @@ export default function Home() {
     "--border": PALETTE.border,
     "--accent": PALETTE.bavaria,
     "--heading": PALETTE.oxford,
+    "--fg": "#111111",
+    "--muted-fg": "#6b7280",
+    "--field-bg": "#FFFFFF",
   };
 
   return (
-    <main className="min-h-screen text-neutral-900 dark:text-neutral-100" style={mainStyle}>
+    <main className="min-h-screen text-neutral-900" style={mainStyle}>
       <style>{`
-        /* default (light) */
+        /* LIGHT ONLY */
         :root {
           --page-bg: ${PALETTE.white};
           --card-bg: #FFFFFF;
@@ -237,23 +240,35 @@ export default function Home() {
           --border: ${PALETTE.border};
           --accent: ${PALETTE.bavaria};
           --heading: ${PALETTE.oxford};
+          --fg: #111111;
+          --muted-fg: #6b7280;
+          --field-bg: #FFFFFF;
         }
+        html { color-scheme: light; }
+        body, html { background: var(--page-bg); }
 
-        /* respect system dark mode from first paint (no JS theme switch) */
-        @media (prefers-color-scheme: dark) {
-          :root {
-            --page-bg: #0A0A0A;
-            --card-bg: #131313;
-            --subtle: #171717;
-            --border: #262626;
+        /* iOS Safari form dark-auto fix */
+        input, select, textarea, button {
+          color: var(--fg);
+          background: var(--field-bg);
+          border-color: var(--border);
+          -webkit-text-size-adjust: 100%;
+          color-scheme: light;
+        }
+        input::placeholder, textarea::placeholder {
+          color: var(--muted-fg);
+          opacity: 1;
+        }
+        @supports (-webkit-touch-callout: none) {
+          input, select, textarea {
+            background-color: var(--field-bg) !important;
+            color: var(--fg) !important;
           }
         }
-
-        html { color-scheme: light dark; }
       `}</style>
 
       {/* NAV */}
-      <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-neutral-950/70">
+      <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3">
             <Image
@@ -274,7 +289,7 @@ export default function Home() {
               { href: "#faq", label: "SSS" },
               { href: "#contact", label: "İletişim" },
             ].map((i) => (
-              <a key={i.href} href={i.href} className="text-neutral-700 hover:text-[color:var(--accent)] dark:text-neutral-200">
+              <a key={i.href} href={i.href} className="text-neutral-700 hover:text-[color:var(--accent)]">
                 {i.label}
               </a>
             ))}
@@ -309,12 +324,12 @@ export default function Home() {
       <section id="top" className="mx-auto max-w-6xl px-5 pt-16 pb-10">
         <div className="grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--subtle)] px-3 py-1 text-xs text-neutral-700 dark:text-neutral-200">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--subtle)] px-3 py-1 text-xs text-neutral-700">
               <Users className="h-4 w-4 text-[color:var(--accent)]" />
               Herkese Açık
             </span>
             <h1 className="text-4xl md:text-5xl font-semibold mt-4 text-[color:var(--heading)]">Münih Sahne</h1>
-            <p className="mt-4 text-lg text-neutral-700 dark:text-neutral-200/90">
+            <p className="mt-4 text-lg text-neutral-700">
               Biz; amatör ruhla profesyonel özeni buluşturan kolektif bir tiyatro topluluğuyuz.
               <br /><br />
               Kimimiz yeni, kimimiz yıllardır bu işin içinde. Ama hepimiz aynı heyecanla öğreniyor, eğleniyor, ve sahne alıyoruz.
@@ -325,7 +340,7 @@ export default function Home() {
               <button onClick={() => setOpen(true)} className="px-5 py-2.5 rounded text-white shadow-sm" style={{ background: PALETTE.bavaria }}>
                 Ön Kayıt
               </button>
-              <a href={ORG.instagram} target="_blank" className="px-5 py-2.5 rounded border border-[color:var(--border)] text-neutral-800 dark:text-neutral-100">
+              <a href={ORG.instagram} target="_blank" className="px-5 py-2.5 rounded border border-[color:var(--border)] text-neutral-800">
                 Instagram
               </a>
             </div>
@@ -334,23 +349,23 @@ export default function Home() {
           {/* Highlight Card */}
           <div className="relative">
             <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-6 shadow-sm">
-              <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <div className="flex items-center gap-2 text-sm text-neutral-600">
                 <CalendarDays className="h-4 w-4" /> Yaklaşan: Tanışma / İlk Çalışma
               </div>
               <div className="mt-2 text-xl font-semibold text-[color:var(--heading)]">{MEETUP.title}</div>
-              <div className="mt-1 text-sm text-neutral-700 dark:text-neutral-300 flex flex-wrap items-center gap-3">
+              <div className="mt-1 text-sm text-neutral-700 flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" />{meetupDateLabel} • {MEETUP.startTime}–{MEETUP.endTime}</span>
                 <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" />{MEETUP.location}</span>
               </div>
-              <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">{MEETUP.details}</p>
+              <p className="mt-3 text-sm text-neutral-700">{MEETUP.details}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => setOpen(true)} className="px-4 py-2 rounded text-sm text-white" style={{ background: PALETTE.bavaria }}>
                   Kayıt Ol
                 </button>
-                <button onClick={() => downloadICS("tanisma-toplantisi.ics", buildICS(MEETUP))} className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700">
+                <button onClick={() => downloadICS("tanisma-toplantisi.ics", buildICS(MEETUP))} className="px-3 py-2 rounded border text-sm hover:bg-neutral-50">
                   Takvime ekle (.ics)
                 </button>
-                <a href={gcal} target="_blank" className="px-3 py-2 rounded border text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:border-neutral-700">
+                <a href={gcal} target="_blank" className="px-3 py-2 rounded border text-sm hover:bg-neutral-50">
                   Google Calendar
                 </a>
               </div>
@@ -369,7 +384,7 @@ export default function Home() {
           ].map((k, i) => (
             <div key={i} className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
               <div className="text-sm font-medium text-[color:var(--heading)]">{k.t}</div>
-              <div className="mt-1 text-sm text-neutral-700 dark:text-neutral-300" />
+              <div className="mt-1 text-sm text-neutral-700" />
             </div>
           ))}
         </div>
@@ -379,7 +394,7 @@ export default function Home() {
       <section id="events" className="mx-auto max-w-6xl px-5 py-12">
         <h2 className="text-2xl font-semibold text-[color:var(--heading)]">Yaklaşan Etkinlikler</h2>
         <div className="mt-4 rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
-          <p className="text-sm text-neutral-700 dark:text-neutral-300">
+          <p className="text-sm text-neutral-700">
             Henüz planlanan bir etkinlik yok. Gelişmelerden haberdar olmak için Instagram hesabımızı takip edebilirsiniz.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -396,7 +411,7 @@ export default function Home() {
       {/* EDUCATION (Kasım–Aralık) */}
       <section id="education" className="mx-auto max-w-6xl px-5 py-12">
         <h3 className="text-xl font-semibold text-[color:var(--heading)]">Eğitim Takvimi (Kasım–Aralık {year})</h3>
-        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className="mt-2 text-sm text-neutral-700">
           Tüm oturumlar Pazartesi günleri {egitimSaat} arasında yapılır.
         </p>
 
@@ -404,7 +419,7 @@ export default function Home() {
           {/* Kasım */}
           <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
             <div className="font-medium text-[color:var(--heading)]">Kasım {year} • Pazartesi {egitimSaat}</div>
-            <ul className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 grid gap-1">
+            <ul className="mt-3 text-sm text-neutral-700 grid gap-1">
               {kasimDates.length === 0 && <li>Bu ay için tarih bulunamadı</li>}
               {kasimDates.map((d) => (
                 <li key={d} className="flex items-center gap-2">
@@ -418,7 +433,7 @@ export default function Home() {
           {/* Aralık */}
           <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
             <div className="font-medium text-[color:var(--heading)]">Aralık {year} • Pazartesi {egitimSaat}</div>
-            <ul className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 grid gap-1">
+            <ul className="mt-3 text-sm text-neutral-700 grid gap-1">
               {aralikDatesShown.length === 0 && <li>Bu ay için tarih bulunamadı</li>}
               {aralikDatesShown.map((d) => (
                 <li key={d} className="flex items-center gap-2">
@@ -453,7 +468,7 @@ export default function Home() {
                 {item.q}
                 <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
               </summary>
-              <p className="mt-2 text-neutral-700 dark:text-neutral-300">{item.a}</p>
+              <p className="mt-2 text-neutral-700">{item.a}</p>
             </details>
           ))}
         </div>
@@ -462,7 +477,7 @@ export default function Home() {
       {/* CONTACT */}
       <section id="contact" className="mx-auto max-w-6xl px-5 py-12">
         <h2 className="text-2xl font-semibold text-[color:var(--heading)]">İletişim</h2>
-        <ul className="mt-4 space-y-2 text-neutral-700 dark:text-neutral-300">
+        <ul className="mt-4 space-y-2 text-neutral-700">
           <li className="flex items-center gap-2">
             <Mail className="h-4 w-4" /> E-posta:{" "}
             <a className="underline text-[color:var(--accent)]" href={`mailto:${ORG.email}`}>
@@ -473,13 +488,13 @@ export default function Home() {
             <MapPin className="h-4 w-4" /> Konum: {ORG.city}
           </li>
         </ul>
-        <div className="mt-8 text-sm text-neutral-600 dark:text-neutral-400">
+        <div className="mt-8 text-sm text-neutral-600">
           <a className="hover:underline" href="/impressum">Impressum</a>{" "}
           · <a className="hover:underline" href="/datenschutz">Datenschutz</a>
         </div>
       </section>
 
-      <footer className="pb-20 md:pb-10 text-center text-sm text-neutral-600 dark:text-neutral-400">
+      <footer className="pb-20 md:pb-10 text-center text-sm text-neutral-600">
         © {new Date().getFullYear()} {ORG.name}
       </footer>
 
@@ -530,7 +545,6 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
       onSubmitted();
       onClose();
     } catch {
-      // İSTEK ÜZERİNE: mailto fallback YOK.
       onSubmitted();
       onClose();
     } finally {
@@ -543,7 +557,7 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
       <div className="w-full max-w-lg rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-6 shadow-xl">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-[color:var(--heading)]">Ön Kayıt</h3>
-          <button onClick={onClose} className="rounded p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800" aria-label="Kapat">
+          <button onClick={onClose} className="rounded p-1 hover:bg-neutral-100" aria-label="Kapat">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -551,22 +565,22 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
         <form className="mt-4 grid gap-4" onSubmit={handleSubmit}>
           <label className="grid gap-1 text-sm">
             <span>Ad Soyad</span>
-            <input required value={name} onChange={(e) => setName(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="Ad Soyad" />
+            <input required value={name} onChange={(e) => setName(e.target.value)} className="rounded border border-[color:var(--border)] px-3 py-2 bg-[color:var(--field-bg)] text-[color:var(--fg)] placeholder:text-[color:var(--muted-fg)]" placeholder="Ad Soyad" />
           </label>
 
           <label className="grid gap-1 text-sm">
             <span>E-posta</span>
-            <input required type="email" value={mail} onChange={(e) => setMail(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="ornek@mail.com" />
+            <input required type="email" value={mail} onChange={(e) => setMail(e.target.value)} className="rounded border border-[color:var(--border)] px-3 py-2 bg-[color:var(--field-bg)] text-[color:var(--fg)] placeholder:text-[color:var(--muted-fg)]" placeholder="ornek@mail.com" />
           </label>
 
           <label className="grid gap-1 text-sm">
             <span>Telefon <span className="opacity-60">(opsiyonel — WhatsApp grubumuza eklenmek için)</span></span>
-            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="+49 ..." />
+            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded border border-[color:var(--border)] px-3 py-2 bg-[color:var(--field-bg)] text-[color:var(--fg)] placeholder:text-[color:var(--muted-fg)]" placeholder="+49 ..." />
           </label>
 
           <label className="grid gap-1 text-sm">
             <span>İlgi Alanı</span>
-            <select value={interest} onChange={(e) => setInterest(e.target.value)} className="rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900">
+            <select value={interest} onChange={(e) => setInterest(e.target.value)} className="rounded border border-[color:var(--border)] px-3 py-2 bg-[color:var(--field-bg)] text-[color:var(--fg)]">
               <option className="text-black">Oyunculuk</option>
               <option className="text-black">Teknik (ışık/ses/sahne)</option>
               <option className="text-black">Prodüksiyon / Afiş / Sosyal Medya</option>
@@ -576,10 +590,10 @@ function JoinModal({ onClose, org, onSubmitted }: { onClose: () => void; org: ty
 
           <label className="grid gap-1 text-sm">
             <span>Not (opsiyonel)</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} className="min-h-24 rounded border border-[color:var(--border)] bg-white px-3 py-2 dark:bg-neutral-900" placeholder="Kısaca kendinden bahsedebilir veya sorularını yazabilirsin." />
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} className="min-h-24 rounded border border-[color:var(--border)] px-3 py-2 bg-[color:var(--field-bg)] text-[color:var(--fg)] placeholder:text-[color:var(--muted-fg)]" placeholder="Kısaca kendinden bahsedebilir veya sorularını yazabilirsin." />
           </label>
 
-          <label className="mt-1 flex items-start gap-2 text-xs text-neutral-700 dark:text-neutral-300">
+          <label className="mt-1 flex items-start gap-2 text-xs text-neutral-700">
             <input type="checkbox" className="mt-0.5" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
             <span>Kişisel verilerimin ön kayıt iletişimi amacıyla işlenmesini kabul ediyorum (<a href="/datenschutz" className="underline">Aydınlatma Metni</a>).</span>
           </label>
