@@ -12,14 +12,27 @@ export const runtime = "nodejs";
 
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const resendFrom = process.env.RESEND_FROM || "onboarding@resend.dev";
-const orgEmail = process.env.ORG_EMAIL || "no-reply@munihsahne.de";
+const orgEmail = process.env.ORG_EMAIL || "munihsahne@gmail.com";
 
 // Basit e-posta regex'i
 const MAIL_RE = /.+@.+\..+/;
 
+// Resend send() cevabını daraltmak için minimal tip
+type ResendSendResult = {
+  id?: string | null;
+  error?: { name?: string; message?: string } | null;
+};
+
 export async function POST(req: Request) {
   try {
-    const data = await req.json();
+    const data = (await req.json()) as {
+      name?: string;
+      mail?: string;
+      phone?: string;
+      interest?: string;
+      note?: string;
+    };
+
     // Mevcut davranış: payload'ı logla
     console.log("JOIN_FORM_PAYLOAD:", data);
 
@@ -61,25 +74,32 @@ export async function POST(req: Request) {
       `Gönderim zamanı: ${submittedAt} (Europe/Berlin)`,
     ].join("\n");
 
-    const result = await resend.emails.send({
+    const result = (await resend.emails.send({
       from: resendFrom,
       to: [orgEmail],
       replyTo: mail, // Cevapla -> başvurana gitsin
       subject: "Yeni Ön Kayıt – Münih Sahne",
       text: textBody,
-    });
+    })) as ResendSendResult;
 
-    if ((result as any)?.error) {
-      console.error("[JOIN] Resend error:", (result as any).error);
+    const sendError = result?.error;
+    if (sendError) {
+      console.error("[JOIN] Resend error:", sendError);
       return NextResponse.json(
-        { ok: false, error: "RESEND_ERROR" },
+        { ok: false, error: "RESEND_ERROR", detail: sendError.message ?? null },
         { status: 502 }
       );
     }
 
-    return NextResponse.json({ ok: true, sent: true });
-  } catch (err) {
-    console.error("JOIN_API_ERROR:", err);
-    return NextResponse.json({ ok: false }, { status: 500 });
+    return NextResponse.json({ ok: true, sent: true, id: result?.id ?? null });
+  } catch (err: unknown) {
+    // unknown'ı stringe çevir ve logla
+    const detail =
+      err instanceof Error ? err.message : typeof err === "string" ? err : "";
+    console.error("JOIN_API_ERROR:", detail);
+    return NextResponse.json(
+      { ok: false, error: "SERVER_ERROR", detail },
+      { status: 500 }
+    );
   }
 }
