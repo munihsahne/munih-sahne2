@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Clock, MapPin, Users, Mail, ChevronRight, X, Menu, ChevronDown, Megaphone } from "lucide-react";
 
@@ -133,27 +133,24 @@ function classNames(...cn: (string | false | undefined)[]) {
 }
 
 /** =====================
- *  THEME (system-only; no toggle)
- *  ===================== */
-function useTheme() {
-  useEffect(() => {
-    const root = document.documentElement;
-    const prefersDark =
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    root.dataset.theme = prefersDark ? "dark" : "light";
-  }, []);
-}
-
-/** =====================
  *  PAGE
  *  ===================== */
 export default function Home() {
   const [open, setOpen] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  useTheme();
+
+  // CTA close memory
+  const [ctaClosed, setCtaClosed] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("ms-cta-closed") === "1") {
+      setCtaClosed(true);
+    }
+  }, []);
+  const closeCta = () => {
+    setCtaClosed(true);
+    try { localStorage.setItem("ms-cta-closed", "1"); } catch {}
+  };
 
   const meetupDateLabel = useMemo(() => formatDateTR(MEETUP.date), []);
   const gcal = useMemo(() => googleCalendarLink(MEETUP), []);
@@ -177,7 +174,7 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const nextEventCta = (
+  const nextEventCta = !ctaClosed && (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-neutral-900/70 dark:border-neutral-800">
       <div className="mx-auto max-w-6xl px-5 py-3 flex items-center gap-3 justify-between">
         <div className="flex items-center gap-3 text-sm text-neutral-700 dark:text-neutral-200">
@@ -189,7 +186,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button onClick={() => setOpen(true)} className="px-4 py-2 rounded text-sm text-white shadow-sm" style={{ background: PALETTE.bavaria }}>
             Kayıt Ol
           </button>
@@ -206,12 +203,19 @@ export default function Home() {
           >
             Google Calendar
           </a>
+          <button
+            onClick={closeCta}
+            aria-label="Kapat"
+            className="ml-1 p-1 rounded border border-[color:var(--border)] hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
   );
 
-  // ✅ Type the CSS variables instead of suppressing TS
+  // CSS variables (light defaults). Dark is applied via media query below.
   const mainStyle: CSSVars = {
     background: "var(--page-bg)",
     "--page-bg": PALETTE.white,
@@ -225,24 +229,46 @@ export default function Home() {
   return (
     <main className="min-h-screen text-neutral-900 dark:text-neutral-100" style={mainStyle}>
       <style>{`
-        :root[data-theme="dark"] {
-          --page-bg: #0A0A0A;
-          --card-bg: #131313;
-          --subtle: #171717;
-          --border: #262626;
+        /* default (light) */
+        :root {
+          --page-bg: ${PALETTE.white};
+          --card-bg: #FFFFFF;
+          --subtle: ${PALETTE.warmWhite};
+          --border: ${PALETTE.border};
+          --accent: ${PALETTE.bavaria};
+          --heading: ${PALETTE.oxford};
         }
+
+        /* respect system dark mode from first paint (no JS theme switch) */
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --page-bg: #0A0A0A;
+            --card-bg: #131313;
+            --subtle: #171717;
+            --border: #262626;
+          }
+        }
+
+        html { color-scheme: light dark; }
       `}</style>
 
       {/* NAV */}
       <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:bg-neutral-950/70">
         <div className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3">
-            <img src={ORG.logoSrc} alt="Münih Sahne" className="h-8 w-8 rounded object-cover ring-1 ring-[color:var(--border)]" />
+            <Image
+              src={ORG.logoSrc}
+              alt="Münih Sahne"
+              width={32}
+              height={32}
+              priority
+              className="rounded object-cover ring-1 ring-[color:var(--border)]"
+            />
             <span className="font-semibold tracking-tight text-[color:var(--heading)]">Münih Sahne</span>
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             {[
-              { href: "#top", label: "Biz Kimiz" },               // <- fixed anchor
+              { href: "#top", label: "Biz Kimiz" },
               { href: "#events", label: "Yaklaşan Etkinlikler" },
               { href: "#education", label: "Eğitim Takvimi" },
               { href: "#faq", label: "SSS" },
@@ -371,13 +397,13 @@ export default function Home() {
       <section id="education" className="mx-auto max-w-6xl px-5 py-12">
         <h3 className="text-xl font-semibold text-[color:var(--heading)]">Eğitim Takvimi (Kasım–Aralık {year})</h3>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          Tüm oturumlar Pazartesi günleri 19:30–22:00 arasında yapılır.
+          Tüm oturumlar Pazartesi günleri {egitimSaat} arasında yapılır.
         </p>
 
         <div className="mt-4 grid md:grid-cols-2 gap-6">
           {/* Kasım */}
           <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
-            <div className="font-medium text-[color:var(--heading)]">Kasım {year} • Pazartesi 19:30–22:00</div>
+            <div className="font-medium text-[color:var(--heading)]">Kasım {year} • Pazartesi {egitimSaat}</div>
             <ul className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 grid gap-1">
               {kasimDates.length === 0 && <li>Bu ay için tarih bulunamadı</li>}
               {kasimDates.map((d) => (
@@ -391,7 +417,7 @@ export default function Home() {
 
           {/* Aralık */}
           <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-5">
-            <div className="font-medium text-[color:var(--heading)]">Aralık {year} • Pazartesi 19:30–22:00</div>
+            <div className="font-medium text-[color:var(--heading)]">Aralık {year} • Pazartesi {egitimSaat}</div>
             <ul className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 grid gap-1">
               {aralikDatesShown.length === 0 && <li>Bu ay için tarih bulunamadı</li>}
               {aralikDatesShown.map((d) => (
