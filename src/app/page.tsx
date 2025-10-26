@@ -442,7 +442,7 @@ export default function Home() {
         <h2 className="text-2xl font-semibold text-[color:var(--heading)]">Sıkça Sorulanlar</h2>
         <div className="mt-4 max-w-3xl pl-2 rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] divide-y">
           {[
-            { q: "Deneyim gerekiyor mu?", a: "Hayır. İlk kez geliyorsan kısa bir tanışma ve ısınma yapıyoruz; sonra akışa dahil oluyorsun." },
+            { q: "XXXDeneyim gerekiyor mu?", a: "Hayır. İlk kez geliyorsan kısa bir tanışma ve ısınma yapıyoruz; sonra akışa dahil oluyorsun." },
             { q: "Devamlılık kuralı var mı?", a: "Eğitim ve provalara düzenli katılım beklenir. Arada kaçıracaksan önceden haber vermen yeterli." },
             { q: "Herhangi bir ücret var mı?", a: "Salon ve teknik giderleri dönem başında birlikte netleştirip şeffafça paylaşıyoruz." },
             { q: "Dil?", a: "Eğitim ve oyun dilimiz Türkçe; gerektiğinde Almanca/İngilizce destekliyoruz." },
