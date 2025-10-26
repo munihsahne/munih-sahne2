@@ -175,19 +175,24 @@ export default function Home() {
   }, [toast]);
 
   const nextEventCta = !ctaClosed && (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="mx-auto max-w-6xl px-5 py-3 flex items-center gap-3 justify-between">
-        <div className="flex items-center gap-3 text-sm text-neutral-700">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <div className="mx-auto w-full max-w-6xl safe-inline safe-bottom px-5 py-3 flex items-center gap-3 justify-between">
+        <div className="flex items-center gap-3 text-sm">
           <Megaphone className="h-5 w-5 text-[color:var(--accent)]" />
           <div>
-            <div className="font-medium">{MEETUP.title}</div>
-            <div className="opacity-70">
+            <div className="font-medium text-[color:var(--heading)]">{MEETUP.title}</div>
+            <div className="text-muted-strong">
               {meetupDateLabel} • {MEETUP.startTime}–{MEETUP.endTime} • {MEETUP.location}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setOpen(true)} className="px-4 py-2 rounded text-sm text-white shadow-sm" style={{ background: PALETTE.bavaria }}>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setOpen(true)}
+            className="px-4 py-2 rounded text-sm text-white shadow-sm"
+            style={{ background: PALETTE.bavaria }}
+          >
             Kayıt Ol
           </button>
           <button
@@ -207,6 +212,7 @@ export default function Home() {
             onClick={closeCta}
             aria-label="Kapat"
             className="ml-1 p-1 rounded border border-[color:var(--border)] hover:bg-neutral-100"
+            style={{ marginRight: "max(0px, var(--safe-right))" }}
           >
             <X className="h-4 w-4" />
           </button>
@@ -225,14 +231,14 @@ export default function Home() {
     "--accent": PALETTE.bavaria,
     "--heading": PALETTE.oxford,
     "--fg": "#111111",
-    "--muted-fg": "#6b7280",
+    "--muted-fg": "#3f3f46", // daha koyu
     "--field-bg": "#FFFFFF",
   };
 
   return (
     <main className="min-h-screen text-neutral-900" style={mainStyle}>
       <style>{`
-        /* LIGHT ONLY */
+        /* LIGHT ONLY (site her zaman light) + iPhone safe-area + kontrast tweaks */
         :root {
           --page-bg: ${PALETTE.white};
           --card-bg: #FFFFFF;
@@ -241,13 +247,26 @@ export default function Home() {
           --accent: ${PALETTE.bavaria};
           --heading: ${PALETTE.oxford};
           --fg: #111111;
-          --muted-fg: #6b7280;
+          --muted-fg: #3f3f46; /* nötr-700 civarı, siliklik azalır */
           --field-bg: #FFFFFF;
-        }
-        html { color-scheme: light; }
-        body, html { background: var(--page-bg); }
 
-        /* iOS Safari form dark-auto fix */
+          /* iOS güvenli alanlar */
+          --safe-right: env(safe-area-inset-right, 0px);
+          --safe-left: env(safe-area-inset-left, 0px);
+          --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        html { color-scheme: light; }
+        html, body { background: var(--page-bg); }
+
+        /* Tipografi: iOS'ta silik görünmeyi azalt */
+        *, *::before, *::after {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          text-rendering: optimizeLegibility;
+        }
+
+        /* Form alanları: iOS auto-darkening kapat ve kontrastı sabitle */
         input, select, textarea, button {
           color: var(--fg);
           background: var(--field-bg);
@@ -257,7 +276,7 @@ export default function Home() {
         }
         input::placeholder, textarea::placeholder {
           color: var(--muted-fg);
-          opacity: 1;
+          opacity: 1; /* iOS'ta fazla silik olmasın */
         }
         @supports (-webkit-touch-callout: none) {
           input, select, textarea {
@@ -265,6 +284,18 @@ export default function Home() {
             color: var(--fg) !important;
           }
         }
+
+        /* Safe-area yardımcı sınıfları (iPhone kenar çentikleri için) */
+        .safe-inline {
+          padding-left: calc(20px + var(--safe-left));
+          padding-right: calc(20px + var(--safe-right));
+        }
+        .safe-bottom {
+          padding-bottom: calc(10px + var(--safe-bottom));
+        }
+
+        /* Genel küçük metinlerde daha güçlü kontrast */
+        .text-muted-strong { color: var(--muted-fg); }
       `}</style>
 
       {/* NAV */}
@@ -329,7 +360,7 @@ export default function Home() {
               Herkese Açık
             </span>
             <h1 className="text-4xl md:text-5xl font-semibold mt-4 text-[color:var(--heading)]">Münih Sahne</h1>
-            <p className="mt-4 text-lg text-neutral-700">
+            <p className="mt-4 text-lg text-[color:var(--fg)]">
               Biz; amatör ruhla profesyonel özeni buluşturan kolektif bir tiyatro topluluğuyuz.
               <br /><br />
               Kimimiz yeni, kimimiz yıllardır bu işin içinde. Ama hepimiz aynı heyecanla öğreniyor, eğleniyor, ve sahne alıyoruz.
@@ -349,7 +380,7 @@ export default function Home() {
           {/* Highlight Card */}
           <div className="relative">
             <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-6 shadow-sm">
-              <div className="flex items-center gap-2 text-sm text-neutral-600">
+              <div className="flex items-center gap-2 text-sm text-muted-strong">
                 <CalendarDays className="h-4 w-4" /> Yaklaşan: Tanışma / İlk Çalışma
               </div>
               <div className="mt-2 text-xl font-semibold text-[color:var(--heading)]">{MEETUP.title}</div>
