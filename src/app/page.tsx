@@ -381,7 +381,7 @@ export default function Home() {
           <div className="relative">
             <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--card-bg)] p-6 shadow-sm">
               <div className="flex items-center gap-2 text-sm text-muted-strong">
-                <CalendarDays className="h-4 w-4" /> Yaklaşan: Tanışma / İlk Çalışma
+                <CalendarDays className="h-4 w-4" /> Geçmiş Etkinlik: Tanışma / İlk Çalışma
               </div>
               <div className="mt-2 text-xl font-semibold text-[color:var(--heading)]">{MEETUP.title}</div>
               <div className="mt-1 text-sm text-neutral-700 flex flex-wrap items-center gap-3">
@@ -389,17 +389,6 @@ export default function Home() {
                 <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" />{MEETUP.location}</span>
               </div>
               <p className="mt-3 text-sm text-neutral-700">{MEETUP.details}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button onClick={() => setOpen(true)} className="px-4 py-2 rounded text-sm text-white" style={{ background: PALETTE.bavaria }}>
-                  Kayıt Ol
-                </button>
-                <button onClick={() => downloadICS("tanisma-toplantisi.ics", buildICS(MEETUP))} className="px-3 py-2 rounded border text-sm hover:bg-neutral-50">
-                  Takvime ekle (.ics)
-                </button>
-                <a href={gcal} target="_blank" className="px-3 py-2 rounded border text-sm hover:bg-neutral-50">
-                  Google Calendar
-                </a>
-              </div>
             </div>
           </div>
         </div>
