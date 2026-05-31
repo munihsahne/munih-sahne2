@@ -248,6 +248,20 @@
     .poster-wrap {
       position: sticky; top: 6rem;
     }
+    .partner-badge {
+      display: flex; align-items: center; gap: .6rem;
+      margin-top: 1rem;
+      font-size: .75rem; color: var(--muted);
+      letter-spacing: .05em;
+    }
+    .partner-badge a { display: flex; align-items: center; }
+    .partner-badge img {
+      height: 28px; width: auto;
+      filter: brightness(0) invert(1);
+      opacity: .75;
+      transition: opacity .2s;
+    }
+    .partner-badge a:hover img { opacity: 1; }
     .poster-img {
       width: 100%; border-radius: 8px;
       box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(231,199,120,.1);
@@ -692,6 +706,12 @@
           <div class="poster-fallback">
             <p class="poster-ionesco">Eugène Ionesco</p>
             <h3 class="poster-oyun-adi">GERGEDANLAR</h3>
+          </div>
+          <div class="partner-badge">
+            <span>İletişim Partnerimiz:</span>
+            <a href="https://vasistdas.de" target="_blank" rel="noopener">
+              <img src="vasistdaslogo.png" alt="Vasistdas" />
+            </a>
           </div>
         </div>
 
